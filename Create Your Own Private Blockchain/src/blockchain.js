@@ -144,7 +144,7 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         //Trying the code from Alex
         let self = this;
-        return new Promise(async (resolve, reject) => { 
+        return new Promise(async (resolve, reject) => {
             //Validate time
             let msgTime = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
@@ -232,11 +232,11 @@ class Blockchain {
                         + i + ':' + pki);
                     if (pki == address) {
                         console.log("\n\nFound a star matching the given address!\n\n")
-                            //Extract the star information from the block's body 
-                            //(Because each block contains only 1 star)
-                        let si = bi.star;
-                        console.log('The body for this block is: ' + si);
-                        stars.push(si);
+                        //Extract the star information from the block's body 
+                        //(Because each block contains only 1 star)
+                        // let si = bi.star;
+                        console.log('The body for this block is: ' + bi);
+                        stars.push(bi);
                     }
                 }).catch(err => console.log('Error from getStarsByWalletAddress: ' + err));
             }
@@ -293,7 +293,7 @@ var address = 'bc1qluzh2029z4kljvfe3jsz9dk0rd4l6chyh3sdl3'
 //var message = `${address} : B : C`
 bc.requestMessageOwnershipVerification(address).then( message => {
 
-    //THE FOLLOWING ARE COPIED FROM: 
+    //THE FOLLOWING ARE COPIED FROM:
     //https://github.com/bitcoinjs/bitcoinjs-message
     //var message = 'This is an example of a signed message.'
 
@@ -305,7 +305,7 @@ bc.requestMessageOwnershipVerification(address).then( message => {
     // => true
 
     let star = '"star1" : {' +
-        '"dec": "68° 52\' 56.9",' +
+        '"dec": "68ï¿½ 52\' 56.9",' +
         '"ra": "16h 29m 1.0s",' +
         '"story": "Here is a star"' +
         '};';
@@ -332,17 +332,17 @@ bc.requestMessageOwnershipVerification(publicKey).then(msg1 => {
     var digitalSignature = bitcoinMessage.sign(msg1, privateKey, keyPair.compressed);
         //let digitalSignature = keyPair.sign(msg1);
         let star1 = '"star1" : {' +
-            '"dec": "68° 52\' 56.9",' +
+            '"dec": "68ï¿½ 52\' 56.9",' +
             '"ra": "16h 29m 1.0s",' +
             '"story": "Here is a star"' +
             '};';
         let star2 = '"star2" : {' +
-            '"dec": "68° 52\' 56.9",' +
+            '"dec": "68ï¿½ 52\' 56.9",' +
             '"ra": "16h 29m 1.0s",' +
             '"story": "Here is another Star"' +
             '};';
         let star3 = '"star3" : {' +
-            '"dec": "68° 52\' 56.9",' +
+            '"dec": "68ï¿½ 52\' 56.9",' +
             '"ra": "16h 29m 1.0s",' +
             '"story": "Here is yet another Star"' +
         '};';
@@ -412,7 +412,7 @@ bc.requestMessageOwnershipVerification(publicKey).then(msg => {
     //Sign the test message
     let digitalSignature = keyPair.sign(msg);
     let star = '"star" : {' +
-        '"dec": "68° 52\' 56.9",' +
+        '"dec": "68ï¿½ 52\' 56.9",' +
         '"ra": "16h 29m 1.0s",' +
         '"story": "Testing the story 4"' +
         '};';
