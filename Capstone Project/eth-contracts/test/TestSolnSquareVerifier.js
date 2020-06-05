@@ -1,75 +1,96 @@
 // Test if a new solution can be added for contract - SolnSquareVerifier
+
 // Test if an ERC721 token can be minted for contract - SolnSquareVerifier
 
-var SolnSquareVerifier = artifacts.require('SolnSquareVerifier');
-var Verifier = artifacts.require('Verifier');
+const Verifier = artifacts.require("Verifier");
+const SolnSquareVerifier = artifacts.require("SolnSquareVerifier");
 
-contract('TestSolnSquareVerifier', accounts => {
+const proof = require("../../zokrates/code/square/proof.json");
 
-    const account_one = accounts[0];
-    const account_two = accounts[1];
-    const account_three = accounts[2];
+contract("TestSolnSquareVerifier", async(accounts) => {
 
-    describe('Mint with verifier', function () {
-        beforeEach(async function () {
-            this.verifier = await Verifier.new({
-                from: account_one
-            });
-            this.contract = await SolnSquareVerifier.new(this.verifier.address, {
-                from: account_one
-            });
-        });
+	let owner = accounts[0];
+	let user2 = accounts[1];
+	var solnSquareInstance;
 
-        it('Verifying minting', async function () {
-            const {
-                proof,
-                input
-            } = require('../../zokrates/code/square/proof.json');
-            await this.contract.mintNFT(
-                account_two,
-                22,
-                proof.A,
-                proof.A_p,
-                proof.B,
-                proof.B_p,
-                proof.C,
-                proof.C_p,
-                proof.H,
-                proof.K,
-                input
-            );
-            const accountTwoBalance = await this.contract.balanceOf(account_two);
-            assert.equal(accountTwoBalance, 1, 'Incorrect balance');
-        });
+	describe("TestVerificationMinting", (accounts) => {
 
-        it('Should fail when minting without verifying', async function () {
-            const {
-                proof_err,
-                input_err
-            } = require('../../zokrates/code/square/proof-err.json');
-            await expectThrow(this.contract.mintNFT(
-                account_three,
-                32,
-                proof_err.A,
-                proof_err.A_p,
-                proof_err.B,
-                proof_err.B_p,
-                proof_err.C,
-                proof_err.C_p,
-                proof_err.H,
-                proof_err.K,
-                input_err
-            ));
-        });
-    });
-});
+		beforeEach(async() => {
+			try {
+				solnSquareInstance = await SolnSquareVerifier.deployed();
+			} catch(err) {
+				console.log(err);
+			}
+		});
 
-var expectThrow = async function (promise) {
-    try {
-        await promise;
-    } catch (error) {
-        assert.exists(error);
-        return;
-    }
-    assert.fail('Expected an error but didnt see one!');
-}
+        // Test if an ERC721 token can be minted for contract - SolnSquareVerifier
+		it("mints a token after verifying the solution", async() =>{
+
+			var error = false;
+			try {
+                // only owner can mint new tokens
+				await solnSquareInstance.mintAfterVerification(
+					// mint the token and send it to user2
+					user2,
+					1,
+					proof.proof.a,
+                    proof.proof.b,
+                    proof.proof.c,
+					proof.inputs,
+					{from:owner}
+				);
+			} catch(err) {
+                error = true;
+			}
+
+			assert.equal(error, false, "Error while minting a token");
+
+		});
+
+        // Test if a new solution can be added for contract - SolnSquareVerifier
+		it("tries to mint a token with already used Id", async() => {
+			var error;
+			try {
+                // only owner can mint new tokens
+                solnSquareInstance = await SolnSquareVerifier.deployed();
+				await solnSquareInstance.mintAfterVerification(
+					// mint the token and send it to user2
+					user2,
+					1,
+					proof.proof.a,
+                    proof.proof.b,
+                    proof.proof.c,
+					proof.inputs,
+					{from:owner}
+				);
+			} catch(err) {
+				error = true;
+			}
+
+			assert.equal(error, true, "Cannot mint with the already used ID");
+		});
+
+		it("tries to mint a token with already used solution input", async() => {
+			var error;
+			try {
+                // only owner can mint new tokens
+                solnSquareInstance = await SolnSquareVerifier.deployed();
+				await solnSquareInstance.mintAfterVerification(
+					// mint the token and send it to user2
+					user2,
+					2,
+					proof.proof.a,
+                    proof.proof.b,
+                    proof.proof.c,
+					proof.inputs,
+					{from:owner}
+				);
+			} catch(err) {
+				error = true;
+			}
+
+			assert.equal(error, true, "Cannot mint a new token with already used solution input");
+		});
+
+	});
+})
